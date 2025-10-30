@@ -7,11 +7,15 @@ import android.os.Looper
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    //TODO (Refactor to replace Thread code with coroutines)
 
     private val cakeImageView: ImageView by lazy {
         findViewById(R.id.imageView)
@@ -21,24 +25,20 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.currentTextView)
     }
 
-    val handler = Handler(Looper.getMainLooper(), Handler.Callback {
-
-        currentTextView.text = String.format(Locale.getDefault(), "Current opacity: %d", it.what)
-        cakeImageView.alpha = it.what / 100f
-        true
-    })
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val scope = CoroutineScope(Job() + Dispatchers.Main)
+
         findViewById<Button>(R.id.revealButton).setOnClickListener{
-            Thread{
+            scope.launch{
                 repeat(100) {
-                    handler.sendEmptyMessage(it)
-                    Thread.sleep(40)
+                    currentTextView.text = String.format(Locale.getDefault(), "Current opacity: %d", it)
+                    cakeImageView.alpha = it / 100f
+                    delay(40)
                 }
-            }.start()
+            }
         }
     }
 }
