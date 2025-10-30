@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
@@ -34,8 +35,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.revealButton).setOnClickListener{
             scope.launch{
                 repeat(100) {
-                    currentTextView.text = String.format(Locale.getDefault(), "Current opacity: %d", it)
-                    cakeImageView.alpha = it / 100f
+                    withContext(Dispatchers.Main) {
+                        currentTextView.text =
+                            String.format(Locale.getDefault(), "Current opacity: %d", it)
+                        cakeImageView.alpha = it / 100f
+                    }
                     delay(40)
                 }
             }
